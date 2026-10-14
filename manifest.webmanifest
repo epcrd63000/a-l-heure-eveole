@@ -1,0 +1,14 @@
+{
+  "name": "À l'heure — Évéole Douai",
+  "short_name": "À l'heure",
+  "description": "Calculez quand partir pour votre prochain bus à Douai.",
+  "lang": "fr-FR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f5fc",
+  "theme_color": "#2044ed",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#2044ed">
+    <meta name="description" content="Trouvez votre prochain bus Évéole et calculez à quelle heure partir.">
+    <title>À l'heure — Évéole Douai</title>
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <!--
+      THESIS: A leave-by time, not a timetable grid, is the answer; no generic transit map or list-first dashboard.
+      OWN-WORLD: Visible cobalt construction grid, ink-black grotesk, paper-white work surface, one vermilion action; every control snaps to the grid.
+      STORY: Choose a Douai stop and line, see verified upcoming passages, then leave at the calculated minute.
+      FIRST VIEWPORT: Compact wordmark and settings above one oversized grid-built departure clock; stop search and the next action stay immediately below.
+      FORM: Wim Crouwel construction-grid system fused with a chronological departure register; operate-mode composition, candidate 7, seed 8159f5da; no staging changes product facts.
+    -->
+    <a class="skip-link" href="#main-content">Aller au contenu</a>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="À l'heure, accueil">
+        <span class="brand-mark" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></span>
+        <span>à l'heure<span class="brand-period">.</span></span>
+      </a>
+      <div class="topbar-right">
+        <span class="network-label"><span class="network-dot"></span>Évéole · Douai</span>
+        <button id="settings-open" class="icon-button" type="button" aria-label="Ouvrir les réglages" aria-haspopup="dialog">
+          <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M2 14h4m4-6h4m4 8h4"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="departure-section" aria-labelledby="departure-heading">
+        <div class="section-topline">
+          <h1 id="departure-heading">Votre prochain départ</h1>
+          <span id="live-status" class="live-status"><span class="live-dot"></span><span id="live-status-text">En attente d’un arrêt</span></span>
+        </div>
+        <div id="notice" class="notice" role="status" hidden></div>
+        <div id="countdown-panel" class="countdown-panel state-empty" aria-live="off">
+          <div class="countdown-main">
+            <div class="countdown-caption" id="countdown-caption">CHOISISSEZ UN ARRÊT</div>
+            <div class="countdown-value" id="countdown-value">--<span>:</span>--</div>
+            <div class="countdown-message" id="countdown-message" aria-live="polite">L’heure idéale pour partir s’affichera ici.</div>
+          </div>
+          <div class="countdown-meta">
+            <span class="meta-icon" aria-hidden="true"><svg class="ui-icon" viewBox="0 0 24 24"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+            <div>
+              <div id="trip-stop" class="trip-stop">Aucun arrêt sélectionné</div>
+              <div id="trip-line" class="trip-line">Bus · Direction</div>
+            </div>
+          </div>
+        </div>
+        <div class="trip-summary" id="trip-summary" aria-live="polite">
+          <span id="summary-passage">Passage : —</span>
+          <span class="summary-divider" aria-hidden="true"></span>
+          <span id="summary-walk">Marche : —</span>
+          <span class="summary-divider" aria-hidden="true"></span>
+          <span id="summary-buffer">Marge : —</span>
+          <span class="summary-leave" id="summary-leave">Départ : —</span>
+        </div>
+      </section>
+
+      <section class="search-section" aria-labelledby="search-heading">
+        <div class="section-heading-row">
+          <h2 id="search-heading">Où prenez-vous le bus ?</h2>
+          <button id="locate-button" class="text-action" type="button">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            Autour de moi
+          </button>
+        </div>
+        <div class="search-control">
+          <label class="visually-hidden" for="stop-search">Rechercher un arrêt à Douai</label>
+          <svg class="ui-icon search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+          <input id="stop-search" type="search" role="combobox" autocomplete="off" placeholder="Gare de Douai, République…" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="search-results" aria-expanded="false">
+          <span id="search-spinner" class="search-spinner" aria-hidden="true" hidden></span>
+          <div id="search-results" class="search-results" role="listbox" aria-label="Résultats de recherche" hidden></div>
+        </div>
+        <div id="nearby-wrap" class="nearby-wrap" hidden>
+          <div class="minor-heading">Arrêts à proximité <span id="nearby-location"></span></div>
+          <div id="nearby-stops" class="nearby-stops"></div>
+        </div>
+        <div class="filters-row">
+          <label class="filter-field">
+            <span>Ligne</span>
+            <select id="line-filter" aria-label="Filtrer par ligne" disabled>
+              <option value="">Tous les bus</option>
+            </select>
+          </label>
+          <label class="filter-field direction-field">
+            <span>Direction</span>
+            <select id="direction-filter" aria-label="Filtrer par direction" disabled>
+              <option value="">Toutes les directions</option>
+            </select>
+          </label>
+          <button id="favorite-toggle" class="favorite-button" type="button" aria-pressed="false" disabled>
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9L12 3Z"/></svg><span>Enregistrer</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="departures-section" aria-labelledby="departures-heading">
+        <div class="section-heading-row departures-title-row">
+          <h2 id="departures-heading">Les prochains passages</h2>
+          <span id="updated-at" class="updated-at">GTFS Évéole · en attente d’un arrêt</span>
+        </div>
+        <div id="departures-list" class="departures-list" aria-live="polite">
+          <div class="empty-state">
+            <span class="empty-glyph" aria-hidden="true">↳</span>
+            <p>Sélectionnez un arrêt pour afficher les prochains passages.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="favorites-section" class="favorites-section" aria-labelledby="favorites-heading" hidden>
+        <div class="section-heading-row">
+          <h2 id="favorites-heading">Vos arrêts favoris</h2>
+          <span class="updated-at">Enregistrés sur cet appareil</span>
+        </div>
+        <div id="favorites-list" class="favorites-list"></div>
+      </section>
+      <footer class="app-footer">
+        <span>Une estimation pour mieux partir.</span>
+        <a id="data-source" href="https://www.data.gouv.fr/datasets/eveole-douai-reseau-bus-du-syndicat-mixte-des-transports-du-douaisis-smtd" target="_blank" rel="noopener noreferrer">GTFS officiel Évéole · gratuit</a>
+      </footer>
+    </main>
+
+    <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-heading">
+      <form id="settings-form" method="dialog">
+        <div class="dialog-header">
+          <div>
+            <h2 id="settings-heading">Vos réglages</h2>
+            <p>Adaptez votre temps de trajet.</p>
+          </div>
+          <button id="settings-close" class="icon-button close-button" type="button" aria-label="Fermer les réglages"><svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m18 6-12 12M6 6l12 12"/></svg></button>
+        </div>
+        <label class="setting-field" for="margin-setting">
+          <span>Marge de sécurité</span>
+          <span class="setting-description">Le temps que vous vous accordez avant le passage du bus.</span>
+          <span class="input-with-unit"><input id="margin-setting" type="number" min="1" max="10" step="1" required><span>min</span></span>
+        </label>
+        <label class="setting-field" for="walk-setting">
+          <span>Temps de marche</span>
+          <span class="setting-description">Facultatif : remplace le calcul estimé pour tous les arrêts.</span>
+          <span class="input-with-unit"><input id="walk-setting" type="number" min="1" max="180" step="1" inputmode="numeric" placeholder="Automatique"><span>min</span></span>
+        </label>
+        <p id="settings-error" class="settings-error" role="alert" hidden></p>
+        <button class="primary-button" type="submit">Enregistrer les réglages</button>
+        <button id="manage-favorites" class="secondary-button" type="button">Gérer mes arrêts favoris</button>
+        <p class="settings-note">La marche automatique est calculée depuis votre position si elle est disponible ; sinon, la distance est estimée à vol d’oiseau.</p>
+      </form>
+    </dialog>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
