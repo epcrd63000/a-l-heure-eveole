@@ -1,4 +1,4 @@
-const CACHE_NAME = "a-lheure-shell-v9";
+const CACHE_NAME = "a-lheure-shell-v10";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -11,7 +11,16 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await Promise.all(APP_SHELL.map(async asset => {
+      const request = new Request(new URL(asset, self.registration.scope), { cache: "reload" });
+      const response = await fetch(request);
+      if (!response.ok) throw new Error(`Impossible de mettre en cache ${asset} (${response.status}).`);
+      await cache.put(request, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener("activate", event => {
