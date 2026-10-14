@@ -2,6 +2,11 @@
 
 Application web mobile-first installable (PWA) qui recherche les arrêts et horaires théoriques du réseau Évéole depuis le GTFS officiel, calcule l'heure conseillée pour partir, et conserve les favoris sur l'appareil.
 
+## Version publiée
+
+- Application : [epcrd63000.github.io/a-l-heure-eveole](https://epcrd63000.github.io/a-l-heure-eveole/)
+- Code source : [github.com/epcrd63000/a-l-heure-eveole](https://github.com/epcrd63000/a-l-heure-eveole)
+
 ## Source gratuite
 
 Le projet utilise le jeu de données public **[EVEOLE DOUAI — GTFS du SMTD](https://www.data.gouv.fr/datasets/eveole-douai-reseau-bus-du-syndicat-mixte-des-transports-du-douaisis-smtd)**, publié sur data.gouv.fr sous licence ODbL. Il n'y a ni abonnement, ni compte, ni clé API à créer.
@@ -40,9 +45,7 @@ La source des horaires ne demande aucun secret et fonctionne avec un hébergemen
 
 **GitHub Pages**
 
-1. Poussez les fichiers du projet à la racine d'un dépôt GitHub.
-2. Dans **Settings → Pages**, choisissez **Deploy from a branch**, la branche `main` et `/ (root)`.
-3. Ouvrez l'adresse HTTPS publiée.
+Le site de ce dépôt est déjà publié depuis la branche `main`, à la racine du dépôt. Pour publier une autre copie, poussez les fichiers à la racine d'un dépôt GitHub public, puis dans **Settings → Pages** choisissez **Deploy from a branch**, la branche `main` et `/ (root)`.
 
 **Netlify**
 
